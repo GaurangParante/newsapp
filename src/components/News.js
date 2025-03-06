@@ -23,8 +23,9 @@ export class News extends Component {
       page: 1,
     };
   }
-  async componentDidMount() {
-    let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=fd37050d1e1c47329235e9f50b46309e&page=1&pageSize=${this.props.pageSize}`;
+
+  async updateNews() {
+    const url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=fd37050d1e1c47329235e9f50b46309e&page=${this.state.page}&pageSize=${this.props.pageSize}`;
     this.setState({ loading: true });
     let data = await fetch(url);
     let parsedData = await data.json();
@@ -35,47 +36,18 @@ export class News extends Component {
     });
   }
 
+  async componentDidMount() {
+    this.updateNews();
+  }
+
   handlePrevClick = async () => {
-    let url = `https://newsapi.org/v2/top-headlines?country=${
-      this.props.country
-    }&category=${
-      this.props.category
-    }&apiKey=fd37050d1e1c47329235e9f50b46309e&page=${
-      this.state.page - 1
-    }&pageSize=${this.props.pageSize}`;
-    this.setState({ loading: true });
-    let data = await fetch(url);
-    let parsedData = await data.json();
-    this.setState({
-      articles: parsedData.articles,
-      page: this.state.page - 1,
-      loading: false,
-    });
+    this.setState({ page: this.state.page - 1 });
+    this.updateNews();
   };
 
   handleNextClick = async () => {
-    if (
-      !(
-        this.state.page + 1 >
-        Math.ceil(this.state.totalResults / this.props.pageSize)
-      )
-    ) {
-      let url = `https://newsapi.org/v2/top-headlines?country=${
-        this.props.country
-      }&category=${
-        this.props.category
-      }&apiKey=fd37050d1e1c47329235e9f50b46309e&page=${
-        this.state.page + 1
-      }&pageSize=${this.props.pageSize}`;
-      this.setState({ loading: true });
-      let data = await fetch(url);
-      let parsedData = await data.json();
-      this.setState({
-        articles: parsedData.articles,
-        page: this.state.page + 1,
-        loading: false,
-      });
-    }
+    this.setState({ page: this.state.page + 1 });
+    this.updateNews();
   };
 
   render() {
@@ -97,6 +69,7 @@ export class News extends Component {
                     newsUrl={element.url}
                     publishedAt={element.publishedAt}
                     author={element.author ? element.author : "Unknown"}
+                    source={element.source.name}
                   />
                 </div>
               );
